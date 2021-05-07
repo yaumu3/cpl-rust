@@ -90,33 +90,37 @@ fn test_binary_search() {
     ];
 
     for (k, a, out) in &samples {
-        let ans = binary_search(
-            0,
-            1_000_000_000,
-            |v| a.iter().map(|ai| (ai - 1) / v).sum::<u32>() <= *k,
-            None,
-        );
+        let is_good = |v: u32| a.iter().map(|ai| (ai - 1) / v).sum::<u32>() <= *k;
+        let ans = is_good.binary_search(0, 1_000_000_000, None);
         assert_eq!(ans, *out);
     }
 }
 
 #[test]
-#[should_panic(expected = "`bad` and `good` must be different.")]
-fn test_binary_search_panic_with_equal_bad_and_good() {
-    binary_search(1, 1, |v| v > 0, None);
+fn test_binary_search_with_partial_ord() {
+    let f = |x| x * x >= 2.;
+    let eps = 1e-3;
+    let sqrt_2 = f.binary_search(1., 2., Some(eps));
+    let delta = sqrt_2 - 2.0f64.sqrt();
+    assert!(delta > 0. && delta <= eps);
 }
 
 #[test]
-fn test_binary_search_partial_ord() {
-    let eps = 1e-4;
-    let cbrt_2: f64 = binary_search(0., 2., |v| v * v * v >= 2., Some(eps));
-    assert!((cbrt_2 - 2.0f64.powf(1. / 3.)).abs() < eps);
+#[should_panic(expected = "`bad` and `good` must be different.")]
+fn test_binary_search_panics_with_equal_bad_and_good() {
+    (|v| v > 0).binary_search(1, 1, None);
 }
 
 #[test]
 #[should_panic(expected = "Put away `NaN`!")]
-fn test_binary_search_panic_with_nan() {
-    binary_search(0., std::f64::NAN, |v| v - 2. > 0., Some(1e-5));
+fn test_binary_search_panics_with_nan_specified_as_good() {
+    (|v: f64| v - 2. > 0.).binary_search(0., std::f64::NAN, Some(1e-5));
+}
+
+#[test]
+#[should_panic(expected = "Put away `NaN`!")]
+fn test_flips_at_panics_with_nan_specified_as_bad() {
+    (|v: f64| v - 2. > 0.).binary_search(std::f64::NAN, 0., Some(1e-5));
 }
 
 #[test]
@@ -148,5 +152,6 @@ fn test_bisect_str() {
 #[test]
 fn test_bisect_partial_ord() {
     let li = [1.0, 1.2, 2.0, 2.0, 4.8, 5.7, 7.9];
-    assert_eq!(li.bisect_left(&1.5), 2);
+    assert_eq!(li.bisect_left(&2.0), 2);
+    assert_eq!(li.bisect_right(&2.0), 4);
 }
