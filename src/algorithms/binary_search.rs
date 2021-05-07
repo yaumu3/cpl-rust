@@ -84,16 +84,16 @@ where
     }
 }
 
-#[snippet("array_bisect", include = "binary_search")]
+#[snippet("element_bisect", include = "binary_search")]
 /// Trait to locate insertion point in slice by binary search.
 /// Equivalent to `bisect.bisect_left/right` of Python3
-pub trait ArrayBisect<T> {
+pub trait ElementBisect<T> {
     fn bisect_left(&self, x: &T) -> usize;
     fn bisect_right(&self, x: &T) -> usize;
 }
 
-#[snippet("array_bisect", include = "binary_search")]
-impl<T: PartialOrd> ArrayBisect<T> for [T] {
+#[snippet("element_bisect", include = "binary_search")]
+impl<T: PartialOrd> ElementBisect<T> for [T] {
     /// Locate the **left**-most insertion point for `x` in sorted `[T]`
     /// to maintain sorted order.
     fn bisect_left(&self, x: &T) -> usize {
