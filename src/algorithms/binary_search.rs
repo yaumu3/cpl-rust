@@ -1,80 +1,111 @@
 use cargo_snippet::snippet;
 
 #[snippet("binary_search")]
-/// Binary search algorithm.
-///
-/// # Arguments
-///
-/// * `bad` - Boundary value **not** to take.
-/// * `good` - Boundary value to take.
-/// * `is_good` - A function which returns `true` if the value is to be taken.
-/// There should be a singular `true`/`false` flip point for return value.
-/// * `eps` - Upper bound of |bad - good| to stop search.
-/// If `None`, multiplicative identity is applied.
-pub fn binary_search<
-    T: Copy + PartialOrd + std::ops::Add<Output = T> + std::ops::Div<Output = T>,
->(
-    mut bad: T,
-    mut good: T,
-    is_good: impl Fn(T) -> bool,
-    eps: Option<T>,
-) -> T {
-    if bad == good {
-        panic!("`bad` and `good` must be different.")
-    }
-
-    // Get multiplicative identity `1` by division while avoiding zero division.
-    // Since it is assured that `bad != good`,
-    // `bad + good == bad` means `good` is additive identity `0`.
-    let one = if bad + good == bad {
-        bad.div(bad)
-    } else {
-        good.div(good)
-    };
-    let eps = eps.unwrap_or(one);
-    let two = one + one;
-
-    // Tweak to avoid using `abs` method.
-    let has_range = |bad: T, good: T| match good.partial_cmp(&bad) {
-        Some(std::cmp::Ordering::Greater) => good > eps + bad,
-        Some(std::cmp::Ordering::Less) => bad > eps + good,
-        None => panic!("Put away `NaN`!"),
-        _ => unreachable!(),
-    };
-
-    while has_range(bad, good) {
-        let mid = (bad + good) / two;
-        if is_good(mid) {
-            good = mid;
-        } else {
-            bad = mid;
-        }
-    }
-    good
+/// Binary search trait.
+pub trait BinarySearch<T> {
+    fn binary_search(&self, bad: T, good: T, eps: Option<T>) -> T;
 }
 
-#[snippet("bisect", include = "binary_search")]
+#[snippet("binary_search")]
+impl<T, F> BinarySearch<T> for F
+where
+    T: Copy + PartialOrd + std::ops::Add<Output = T> + std::ops::Div<Output = T>,
+    F: Fn(T) -> bool,
+{
+    /// Search a flipping point within a given domain of a function `F(T) -> bool`
+    /// by binary search algorithm.
+    ///
+    /// It is asserted that `F` is weakly monotone from `good` inclusive to `bad` exclusive.
+    /// That is, there is 0 or 1 `x` satisfies `F(x) && !(F(x - eps) && F(x + eps))`.
+    ///
+    /// # Arguments
+    ///
+    /// * `bad` - Domain boundary to exclude.
+    /// * `good` - Domain boundary to inclue.
+    /// * `eps` - Upper bound of |`bad` - `good`| to stop search.
+    /// If `None`, multiplicative identity is applied.
+    ///
+    /// # Returns
+    ///
+    /// * All range is `true` -> `good`
+    /// * All range is `false` -> `bad` + `eps`
+    /// * Otherwise, flipping key `k`.
+    ///
+    /// # Panics
+    ///
+    /// * When `bad` is equal to `good`.
+    /// * When either domain boundary is uncomparable object.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// //! Compute square root of 2 by bisection.
+    /// use cpl_rust::algorithms::binary_search::BinarySearch;
+    /// let f = |x| x * x >= 2.;
+    /// let eps = 1e-3;
+    /// let sqrt_2 = f.binary_search(1., 2., Some(eps));
+    /// let delta = sqrt_2 - 2.0f64.sqrt();
+    /// assert!(delta > 0. && delta <= eps);
+    /// ```
+    fn binary_search(&self, bad: T, good: T, eps: Option<T>) -> T {
+        if bad == good {
+            panic!("`bad` and `good` must be different.")
+        }
+
+        // Get multiplicative identity `1` by division while avoiding zero division.
+        // Since it is assured that `bad != good`,
+        // `bad + good == bad` means `good` is additive identity `0`.
+        let one = if bad + good == bad {
+            bad.div(bad)
+        } else {
+            good.div(good)
+        };
+        let eps = eps.unwrap_or(one);
+        let two = one + one;
+
+        // Tweak to avoid using `abs` method.
+        let has_range = |bad: T, good: T| match good.partial_cmp(&bad) {
+            Some(std::cmp::Ordering::Greater) => good > eps + bad,
+            Some(std::cmp::Ordering::Less) => bad > eps + good,
+            None => panic!("Put away `NaN`!"),
+            _ => unreachable!(),
+        };
+
+        let (mut bad, mut good) = (bad, good);
+        while has_range(bad, good) {
+            let mid = (bad + good) / two;
+            if self(mid) {
+                good = mid;
+            } else {
+                bad = mid;
+            }
+        }
+        good
+    }
+}
+
+#[snippet("array_bisect", include = "binary_search")]
 /// Trait to locate insertion point in slice by binary search.
 /// Equivalent to `bisect.bisect_left/right` of Python3
-pub trait Bisect<T> {
+pub trait ArrayBisect<T> {
     fn bisect_left(&self, x: &T) -> usize;
     fn bisect_right(&self, x: &T) -> usize;
 }
 
-#[snippet("bisect", include = "binary_search")]
-impl<T: PartialOrd> Bisect<T> for [T] {
-    /// Locate the **left**-most insertion point for `x` in sorted slice `[T]`
+#[snippet("array_bisect", include = "binary_search")]
+impl<T: PartialOrd> ArrayBisect<T> for [T] {
+    /// Locate the **left**-most insertion point for `x` in sorted `[T]`
     /// to maintain sorted order.
     fn bisect_left(&self, x: &T) -> usize {
-        let ret = binary_search(-1, self.len() as i64, |i| self[i as usize] >= *x, None);
-        ret as usize
+        let f = |i: i64| self[i as usize] >= *x;
+        f.binary_search(-1, self.len() as i64, None) as usize
     }
 
-    /// Locate the **right**-most insertion point for `x` in sorted slice `[T]`
+    /// Locate the **right**-most insertion point for `x` in sorted `[T]`
     /// to maintain sorted order.
     fn bisect_right(&self, x: &T) -> usize {
-        let ret = binary_search(-1, self.len() as i64, |i| self[i as usize] > *x, None);
-        ret as usize
+        let f = |i: i64| self[i as usize] > *x;
+        f.binary_search(-1, self.len() as i64, None) as usize
     }
 }
 
