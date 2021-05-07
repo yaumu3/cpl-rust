@@ -28,8 +28,8 @@ where
     /// # Returns
     ///
     /// * All range is `true` -> `good`
-    /// * All range is `false` -> `bad` + `eps`
-    /// * Otherwise, flipping key `k`.
+    /// * All range is `false` -> `bad` ± `eps` (whichever close to `good`)
+    /// * Otherwise, flipping key `x`.
     ///
     /// # Panics
     ///
@@ -39,7 +39,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// //! Compute square root of 2 by bisection.
+    /// //! Compute square root of 2
     /// use cpl_rust::algorithms::binary_search::BinarySearch;
     /// let f = |x| x * x >= 2.;
     /// let eps = 1e-3;
