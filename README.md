@@ -6,7 +6,7 @@ Competetive programming library in Rust
 
 Rust 1.42
 
-## Use as snippet
+## Use snippets
 
 1. Install [cargo-snippet](https://github.com/hatoo/cargo-snippet)
 2. `cargo snippet`
