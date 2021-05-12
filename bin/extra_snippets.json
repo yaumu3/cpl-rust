@@ -1,0 +1,14 @@
+{
+  "Print line": {
+    "prefix": "p",
+    "body": "println!(\"$1\"$2);"
+  },
+  "Debug": {
+    "prefix": "d",
+    "body": "dbg!($0);"
+  },
+  "Iterable to char separated String": {
+    "prefix": "sep",
+    "body": "$1.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(\"$2\");"
+  }
+}
