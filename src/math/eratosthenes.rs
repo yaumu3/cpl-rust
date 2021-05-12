@@ -18,16 +18,13 @@ impl Eratosthenes {
     /// * `n_max`: Max number to check primarity (inclusive).
     pub fn new(n_max: usize) -> Self {
         let mut lpf: Vec<usize> = (0..=n_max).collect();
-        let mut i = 2;
-        while i * i <= n_max {
-            if lpf[i] == i {
-                let mut j = i * i;
-                while j <= n_max {
-                    lpf[j] = lpf[j].min(i);
-                    j += i;
-                }
+        for i in (2..).take_while(|&x| x * x <= n_max) {
+            if lpf[i] != i {
+                continue;
             }
-            i += 1;
+            for j in (i * i..).step_by(i).take_while(|&x| x <= n_max) {
+                lpf[j] = lpf[j].min(i);
+            }
         }
         Self { lpf }
     }
