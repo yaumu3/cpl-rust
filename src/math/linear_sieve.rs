@@ -1,7 +1,6 @@
 use cargo_snippet::snippet;
 
 #[snippet("linear_sieve")]
-#[allow(dead_code)]
 /// Sieve of eratosthenes having linear time complexity
 /// for primarity test and prime factorization.
 ///
@@ -11,7 +10,7 @@ use cargo_snippet::snippet;
 /// * `lpf`: `lpf[i]` is the least prime factor of `i`.
 /// e.g.) `lpf[7] == 7`, `lpf[20] == 5`, `lpf[30] == 2`.
 pub struct LinearSieve {
-    primes: Vec<usize>,
+    pub primes: Vec<usize>,
     lpf: Vec<usize>,
 }
 
