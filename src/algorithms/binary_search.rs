@@ -16,7 +16,7 @@ where
     /// by binary search algorithm.
     ///
     /// It is asserted that `F` is weakly monotone from `good` inclusive to `bad` exclusive.
-    /// That is, there is 0 or 1 `x` satisfies `F(x) && !(F(x - eps) && F(x + eps))`.
+    /// That is, there is 0 or 1 `x` satisfies `F(x) && (F(x - eps) ^ F(x + eps))`.
     ///
     /// # Arguments
     ///
