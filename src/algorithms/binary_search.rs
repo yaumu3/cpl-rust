@@ -3,7 +3,7 @@ use cargo_snippet::snippet;
 #[snippet("binary_search")]
 /// Binary search trait.
 pub trait BinarySearch<T> {
-    fn binary_search(&self, good: T, bad: T, eps: Option<T>) -> T;
+    fn binary_search(&self, good: T, bad: T, eps: Option<T>) -> Option<T>;
 }
 
 #[snippet("binary_search")]
@@ -27,14 +27,10 @@ where
     ///
     /// # Returns
     ///
-    /// * All range is `true` -> `good`
-    /// * All range is `false` -> `bad` ± `eps` (whichever close to `good`)
-    /// * Otherwise, flipping key `x`.
-    ///
-    /// # Panics
-    ///
-    /// * When `good` is equal to `bad`.
-    /// * When either domain boundary is uncomparable object.
+    /// * `good == bad` or either domain boundary is uncomparable object -> `None`
+    /// * All range is `true` -> `Some(good)`
+    /// * All range is `false` -> `Some(bad ± eps)` (whichever close to `good`)
+    /// * Otherwise, flipping key `Some(x)`.
     ///
     /// # Examples
     ///
@@ -43,13 +39,13 @@ where
     /// use cpl_rust::algorithms::binary_search::BinarySearch;
     /// let f = |x| x * x >= 2.;
     /// let eps = 1e-3;
-    /// let sqrt_2 = f.binary_search(2., 1., Some(eps));
+    /// let sqrt_2 = f.binary_search(2., 1., Some(eps)).unwrap();
     /// let delta = sqrt_2 - 2.0f64.sqrt();
     /// assert!(delta > 0. && delta <= eps);
     /// ```
-    fn binary_search(&self, good: T, bad: T, eps: Option<T>) -> T {
-        if good == bad {
-            panic!("`good` and `bad` must be different.")
+    fn binary_search(&self, good: T, bad: T, eps: Option<T>) -> Option<T> {
+        if good == bad || good.partial_cmp(&bad) == None {
+            return None;
         }
 
         // Get multiplicative identity `1` by division while avoiding zero division.
@@ -67,7 +63,6 @@ where
         let has_range = |good: T, bad: T| match good.partial_cmp(&bad) {
             Some(std::cmp::Ordering::Greater) => good > eps + bad,
             Some(std::cmp::Ordering::Less) => bad > eps + good,
-            None => panic!("Put away `NaN`!"),
             _ => unreachable!(),
         };
 
@@ -80,7 +75,7 @@ where
                 bad = mid;
             }
         }
-        good
+        Some(good)
     }
 }
 
@@ -98,14 +93,14 @@ impl<T: PartialOrd> ElementBisect<T> for [T] {
     /// to maintain sorted order.
     fn bisect_left(&self, x: &T) -> usize {
         let f = |i: i64| self[i as usize] >= *x;
-        f.binary_search(self.len() as i64, -1, None) as usize
+        f.binary_search(self.len() as i64, -1, None).unwrap() as usize
     }
 
     /// Locate the **right**-most insertion point for `x` in sorted `[T]`
     /// to maintain sorted order.
     fn bisect_right(&self, x: &T) -> usize {
         let f = |i: i64| self[i as usize] > *x;
-        f.binary_search(self.len() as i64, -1, None) as usize
+        f.binary_search(self.len() as i64, -1, None).unwrap() as usize
     }
 }
 
@@ -122,7 +117,7 @@ fn test_binary_search() {
 
     for (k, a, out) in &samples {
         let is_good = |v: u32| a.iter().map(|ai| (ai - 1) / v).sum::<u32>() <= *k;
-        let ans = is_good.binary_search(1_000_000_000, 0, None);
+        let ans = is_good.binary_search(1_000_000_000, 0, None).unwrap();
         assert_eq!(ans, *out);
     }
 }
@@ -131,27 +126,30 @@ fn test_binary_search() {
 fn test_binary_search_with_partial_ord() {
     let f = |x| x * x >= 2.;
     let eps = 1e-3;
-    let sqrt_2 = f.binary_search(2., 1., Some(eps));
+    let sqrt_2 = f.binary_search(2., 1., Some(eps)).unwrap();
     let delta = sqrt_2 - 2.0f64.sqrt();
     assert!(delta > 0. && delta <= eps);
 }
 
 #[test]
-#[should_panic(expected = "`good` and `bad` must be different.")]
-fn test_binary_search_panics_with_equal_bad_and_good() {
-    (|v| v > 0).binary_search(1, 1, None);
+fn test_binary_search_returns_none_with_equal_good_and_bad() {
+    assert_eq!((|v| v > 0).binary_search(1, 1, None), None);
 }
 
 #[test]
-#[should_panic(expected = "Put away `NaN`!")]
-fn test_binary_search_panics_with_nan_specified_as_good() {
-    (|v: f64| v - 2. > 0.).binary_search(std::f64::NAN, 0., Some(1e-5));
+fn test_binary_search_returns_none_with_nan_specified_as_good() {
+    assert_eq!(
+        (|v: f64| v - 2. > 0.).binary_search(std::f64::NAN, 0., Some(1e-5)),
+        None
+    );
 }
 
 #[test]
-#[should_panic(expected = "Put away `NaN`!")]
-fn test_flips_at_panics_with_nan_specified_as_bad() {
-    (|v: f64| v - 2. > 0.).binary_search(0., std::f64::NAN, Some(1e-5));
+fn test_binary_search_returns_none_with_nan_specified_as_bad() {
+    assert_eq!(
+        (|v: f64| v - 2. > 0.).binary_search(0., std::f64::NAN, Some(1e-5)),
+        None
+    );
 }
 
 #[test]
