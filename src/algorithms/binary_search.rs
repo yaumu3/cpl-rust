@@ -3,7 +3,7 @@ use cargo_snippet::snippet;
 #[snippet("binary_search")]
 /// Binary search trait.
 pub trait BinarySearch<T> {
-    fn binary_search(&self, bad: T, good: T, eps: Option<T>) -> T;
+    fn binary_search(&self, good: T, bad: T, eps: Option<T>) -> T;
 }
 
 #[snippet("binary_search")]
@@ -20,9 +20,9 @@ where
     ///
     /// # Arguments
     ///
-    /// * `bad` - Domain boundary to exclude.
     /// * `good` - Domain boundary to inclue.
-    /// * `eps` - Upper bound of |`bad` - `good`| to stop search.
+    /// * `bad` - Domain boundary to exclude.
+    /// * `eps` - Upper bound of |`good` - `bad`| to stop search.
     /// If `None`, multiplicative identity is applied.
     ///
     /// # Returns
@@ -33,7 +33,7 @@ where
     ///
     /// # Panics
     ///
-    /// * When `bad` is equal to `good`.
+    /// * When `good` is equal to `bad`.
     /// * When either domain boundary is uncomparable object.
     ///
     /// # Examples
@@ -43,19 +43,19 @@ where
     /// use cpl_rust::algorithms::binary_search::BinarySearch;
     /// let f = |x| x * x >= 2.;
     /// let eps = 1e-3;
-    /// let sqrt_2 = f.binary_search(1., 2., Some(eps));
+    /// let sqrt_2 = f.binary_search(2., 1., Some(eps));
     /// let delta = sqrt_2 - 2.0f64.sqrt();
     /// assert!(delta > 0. && delta <= eps);
     /// ```
-    fn binary_search(&self, bad: T, good: T, eps: Option<T>) -> T {
-        if bad == good {
-            panic!("`bad` and `good` must be different.")
+    fn binary_search(&self, good: T, bad: T, eps: Option<T>) -> T {
+        if good == bad {
+            panic!("`good` and `bad` must be different.")
         }
 
         // Get multiplicative identity `1` by division while avoiding zero division.
-        // Since it is assured that `bad != good`,
-        // `bad + good == bad` means `good` is additive identity `0`.
-        let one = if bad + good == bad {
+        // Since it is assured that `good != bad`,
+        // `good + bad == bad` means `good` is additive identity `0`.
+        let one = if good + bad == bad {
             bad.div(bad)
         } else {
             good.div(good)
@@ -64,16 +64,16 @@ where
         let two = one + one;
 
         // Tweak to avoid using `abs` method.
-        let has_range = |bad: T, good: T| match good.partial_cmp(&bad) {
+        let has_range = |good: T, bad: T| match good.partial_cmp(&bad) {
             Some(std::cmp::Ordering::Greater) => good > eps + bad,
             Some(std::cmp::Ordering::Less) => bad > eps + good,
             None => panic!("Put away `NaN`!"),
             _ => unreachable!(),
         };
 
-        let (mut bad, mut good) = (bad, good);
-        while has_range(bad, good) {
-            let mid = (bad + good) / two;
+        let (mut good, mut bad) = (good, bad);
+        while has_range(good, bad) {
+            let mid = (good + bad) / two;
             if self(mid) {
                 good = mid;
             } else {
@@ -98,14 +98,14 @@ impl<T: PartialOrd> ElementBisect<T> for [T] {
     /// to maintain sorted order.
     fn bisect_left(&self, x: &T) -> usize {
         let f = |i: i64| self[i as usize] >= *x;
-        f.binary_search(-1, self.len() as i64, None) as usize
+        f.binary_search(self.len() as i64, -1, None) as usize
     }
 
     /// Locate the **right**-most insertion point for `x` in sorted `[T]`
     /// to maintain sorted order.
     fn bisect_right(&self, x: &T) -> usize {
         let f = |i: i64| self[i as usize] > *x;
-        f.binary_search(-1, self.len() as i64, None) as usize
+        f.binary_search(self.len() as i64, -1, None) as usize
     }
 }
 
@@ -122,7 +122,7 @@ fn test_binary_search() {
 
     for (k, a, out) in &samples {
         let is_good = |v: u32| a.iter().map(|ai| (ai - 1) / v).sum::<u32>() <= *k;
-        let ans = is_good.binary_search(0, 1_000_000_000, None);
+        let ans = is_good.binary_search(1_000_000_000, 0, None);
         assert_eq!(ans, *out);
     }
 }
@@ -131,13 +131,13 @@ fn test_binary_search() {
 fn test_binary_search_with_partial_ord() {
     let f = |x| x * x >= 2.;
     let eps = 1e-3;
-    let sqrt_2 = f.binary_search(1., 2., Some(eps));
+    let sqrt_2 = f.binary_search(2., 1., Some(eps));
     let delta = sqrt_2 - 2.0f64.sqrt();
     assert!(delta > 0. && delta <= eps);
 }
 
 #[test]
-#[should_panic(expected = "`bad` and `good` must be different.")]
+#[should_panic(expected = "`good` and `bad` must be different.")]
 fn test_binary_search_panics_with_equal_bad_and_good() {
     (|v| v > 0).binary_search(1, 1, None);
 }
@@ -145,13 +145,13 @@ fn test_binary_search_panics_with_equal_bad_and_good() {
 #[test]
 #[should_panic(expected = "Put away `NaN`!")]
 fn test_binary_search_panics_with_nan_specified_as_good() {
-    (|v: f64| v - 2. > 0.).binary_search(0., std::f64::NAN, Some(1e-5));
+    (|v: f64| v - 2. > 0.).binary_search(std::f64::NAN, 0., Some(1e-5));
 }
 
 #[test]
 #[should_panic(expected = "Put away `NaN`!")]
 fn test_flips_at_panics_with_nan_specified_as_bad() {
-    (|v: f64| v - 2. > 0.).binary_search(std::f64::NAN, 0., Some(1e-5));
+    (|v: f64| v - 2. > 0.).binary_search(0., std::f64::NAN, Some(1e-5));
 }
 
 #[test]
