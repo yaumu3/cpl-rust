@@ -63,20 +63,21 @@ where
         let mut l = left.unwrap_or(0) + self.n;
         let mut r = right.unwrap_or(self.n) + self.n;
         assert!(l <= r && l <= self.node.len() && r <= self.node.len());
-        let mut res = (self.id)();
+        let mut res_l = (self.id)();
+        let mut res_r = (self.id)();
         while l < r {
             if l & 1 == 1 {
-                res = (self.op)(res, self.node[l]);
+                res_l = (self.op)(res_l, self.node[l]);
                 l += 1;
             }
             if r & 1 == 1 {
                 r -= 1;
-                res = (self.op)(res, self.node[r]);
+                res_r = (self.op)(self.node[r], res_r);
             }
             l >>= 1;
             r >>= 1;
         }
-        res
+        (self.op)(res_l, res_r)
     }
 }
 
