@@ -35,18 +35,7 @@ where
     Op: Fn(T, T) -> T,
     Id: Fn() -> T,
 {
-    pub fn new(size: usize, op: Op, id: Id) -> Self {
-        let n = size.next_power_of_two();
-        Self {
-            n,
-            node: vec![id(); n << 1],
-            op,
-            id,
-        }
-    }
-
-    /// Build tree from a slice with time-complexity O(n).
-    pub fn from_slice(slice: &[T], op: Op, id: Id) -> Self {
+    pub fn new(slice: &[T], op: Op, id: Id) -> Self {
         let n = slice.len().next_power_of_two();
         let mut node = vec![id(); n << 1];
         for (i, &x) in slice.iter().enumerate() {
@@ -94,7 +83,7 @@ where
 #[test]
 fn test_tree_is_indexable() {
     let node = [1, 2, -91, 20, 5, 10, 970];
-    let t = SegmentTree::from_slice(&node, |a, b| a + b, || 0);
+    let t = SegmentTree::new(&node, |a, b| a + b, || 0);
     assert_eq!(t[2], -91);
     assert_eq!(t[7], 0);
 }
@@ -102,25 +91,14 @@ fn test_tree_is_indexable() {
 #[test]
 fn test_tree_is_debuggable() {
     let node = [1, 2];
-    let t = SegmentTree::from_slice(&node, |a, b| a + b, || 0);
+    let t = SegmentTree::new(&node, |a, b| a + b, || 0);
     assert_eq!(format!("{:?}", t), "[1, 2]");
-}
-
-#[test]
-fn test_new_and_from_slice_yield_same_tree() {
-    let node = [1, 2, -91, 20, 5, 10, 970];
-    let mut t_new = SegmentTree::new(node.len(), |a, b| a + b, || 0);
-    for (i, &x) in node.iter().enumerate() {
-        t_new.update(i, x);
-    }
-    let t_from_slice = SegmentTree::from_slice(&node, |a, b| a + b, || 0);
-    assert_eq!(t_new.node, t_from_slice.node);
 }
 
 #[test]
 fn test_query() {
     let node = [1, 2, -91, 20, 5, 10, 970];
-    let t = SegmentTree::from_slice(&node, |a, b| a + b, || 0);
+    let t = SegmentTree::new(&node, |a, b| a + b, || 0);
     for i in 0..=node.len() {
         for j in i..=node.len() {
             let res = t.query(Some(i), Some(j));
@@ -132,7 +110,7 @@ fn test_query() {
 #[test]
 fn test_whole_query() {
     let node = [1, 2, -91, 20, 5, 10, 970];
-    let tree = SegmentTree::from_slice(
+    let tree = SegmentTree::new(
         &node,
         |a, b| std::cmp::min(a, b),
         || *node.iter().max().unwrap(),
