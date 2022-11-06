@@ -35,16 +35,22 @@ where
     Op: Fn(T, T) -> T,
     Id: Fn() -> T,
 {
-    pub fn new(slice: &[T], op: Op, id: Id) -> Self {
-        let n = slice.len().next_power_of_two();
-        let mut node = vec![id(); n << 1];
-        for (i, &x) in slice.iter().enumerate() {
-            node[i + n] = x;
-        }
-        for i in (1..n).rev() {
-            node[i] = op(node[i << 1], node[i << 1 | 1]);
-        }
+    pub fn new(n: usize, op: Op, id: Id) -> Self {
+        let n = n.next_power_of_two();
+        let node = vec![id(); n << 1];
         Self { n, node, op, id }
+    }
+
+    /// Construct tree from a given slice
+    pub fn from_slice(slice: &[T], op: Op, id: Id) -> Self {
+        let mut tree = Self::new(slice.len(), op, id);
+        for (i, &x) in slice.iter().enumerate() {
+            tree.node[i + tree.n] = x;
+        }
+        for i in (1..tree.n).rev() {
+            tree.node[i] = (tree.op)(tree.node[i << 1], tree.node[i << 1 | 1]);
+        }
+        tree
     }
 
     /// Update value for `i`th element.
@@ -84,7 +90,7 @@ where
 #[test]
 fn test_tree_is_indexable() {
     let node = [1, 2, -91, 20, 5, 10, 970];
-    let t = SegmentTree::new(&node, |a, b| a + b, || 0);
+    let t = SegmentTree::from_slice(&node, |a, b| a + b, || 0);
     assert_eq!(t[2], -91);
     assert_eq!(t[7], 0);
 }
@@ -92,14 +98,14 @@ fn test_tree_is_indexable() {
 #[test]
 fn test_tree_is_debuggable() {
     let node = [1, 2];
-    let t = SegmentTree::new(&node, |a, b| a + b, || 0);
+    let t = SegmentTree::from_slice(&node, |a, b| a + b, || 0);
     assert_eq!(format!("{:?}", t), "[1, 2]");
 }
 
 #[test]
 fn test_query() {
     let node = [1, 2, -91, 20, 5, 10, 970];
-    let t = SegmentTree::new(&node, |a, b| a + b, || 0);
+    let t = SegmentTree::from_slice(&node, |a, b| a + b, || 0);
     for i in 0..=node.len() {
         for j in i..=node.len() {
             let res = t.query(Some(i), Some(j));
@@ -111,11 +117,7 @@ fn test_query() {
 #[test]
 fn test_whole_query() {
     let node = [1, 2, -91, 20, 5, 10, 970];
-    let tree = SegmentTree::new(
-        &node,
-        |a, b| std::cmp::min(a, b),
-        || *node.iter().max().unwrap(),
-    );
+    let tree = SegmentTree::from_slice(&node, std::cmp::min, || *node.iter().max().unwrap());
     let whole_min = tree.query(None, None);
     assert_eq!(whole_min, -91);
     let right_min = tree.query(Some(3), None);
