@@ -44,7 +44,7 @@ where
     /// assert!(delta > 0. && delta <= eps);
     /// ```
     fn binary_search(&self, good: T, bad: T, eps: Option<T>) -> Option<T> {
-        if good == bad || good.partial_cmp(&bad) == None {
+        if good == bad || good.partial_cmp(&bad).is_none() {
             return None;
         }
 
