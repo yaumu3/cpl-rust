@@ -8,15 +8,19 @@ pub struct MultiSet<T> {
 }
 
 #[snippet("multi_set")]
-impl<T> MultiSet<T>
-where
-    T: Ord + Clone,
-{
-    pub fn new() -> Self {
+impl<T: Ord> Default for MultiSet<T> {
+    fn default() -> Self {
         Self {
             len: 0,
             multi_set: std::collections::BTreeMap::new(),
         }
+    }
+}
+
+#[snippet("multi_set")]
+impl<T: Ord + Clone> MultiSet<T> {
+    pub fn new() -> Self {
+        Self::default()
     }
     pub fn from_slice(slice: &[T]) -> Self {
         let mut result = Self::new();
