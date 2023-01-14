@@ -61,35 +61,40 @@ impl LinearSieve {
     }
 }
 
-#[test]
-fn test_prime() {
-    let l = LinearSieve::new(1_000_000);
-    assert!(!l.is_prime(0));
-    assert!(!l.is_prime(1));
-    assert!(l.is_prime(2));
-    assert!(l.is_prime(278809));
-    assert!(!l.is_prime(836427));
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-#[should_panic]
-fn test_prime_out_of_bounds() {
-    let l = LinearSieve::new(10);
-    l.is_prime(11);
-}
+    #[test]
+    fn test_prime() {
+        let l = LinearSieve::new(1_000_000);
+        assert!(!l.is_prime(0));
+        assert!(!l.is_prime(1));
+        assert!(l.is_prime(2));
+        assert!(l.is_prime(278809));
+        assert!(!l.is_prime(836427));
+    }
 
-#[test]
-fn test_factorize() {
-    let l = LinearSieve::new(1_000_000);
-    assert_eq!(l.factorize(0), vec![]);
-    assert_eq!(l.factorize(1), vec![]);
-    assert_eq!(l.factorize(2), vec![2]);
-    assert_eq!(l.factorize(120), vec![2, 2, 2, 3, 5]);
-    assert_eq!(l.factorize(836427), vec![3, 278809]);
-}
+    #[test]
+    #[should_panic]
+    fn test_prime_out_of_bounds() {
+        let l = LinearSieve::new(10);
+        l.is_prime(11);
+    }
 
-#[test]
-fn test_list_primes() {
-    let l = LinearSieve::new(29);
-    assert_eq!(l.primes, vec![2, 3, 5, 7, 11, 13, 17, 19, 23, 29]);
+    #[test]
+    fn test_factorize() {
+        let l = LinearSieve::new(1_000_000);
+        assert_eq!(l.factorize(0), vec![]);
+        assert_eq!(l.factorize(1), vec![]);
+        assert_eq!(l.factorize(2), vec![2]);
+        assert_eq!(l.factorize(120), vec![2, 2, 2, 3, 5]);
+        assert_eq!(l.factorize(836427), vec![3, 278809]);
+    }
+
+    #[test]
+    fn test_list_primes() {
+        let l = LinearSieve::new(29);
+        assert_eq!(l.primes, vec![2, 3, 5, 7, 11, 13, 17, 19, 23, 29]);
+    }
 }

@@ -117,103 +117,108 @@ impl std::ops::Div for Ratio {
     }
 }
 
-#[test]
-fn test_gcd() {
-    assert_eq!(gcd(10, 4), 2);
-    assert_eq!(gcd(42, 11), 1);
-    assert_eq!(gcd(10, 0), 10);
-    assert_eq!(gcd(10, 1), 1);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn test_lcm() {
-    assert_eq!(lcm(10, 4), 20);
-    assert_eq!(lcm(42, 11), 462);
-    assert_eq!(lcm(10, 0), 0);
-    assert_eq!(lcm(10, 1), 10);
-}
+    #[test]
+    fn test_gcd() {
+        assert_eq!(gcd(10, 4), 2);
+        assert_eq!(gcd(42, 11), 1);
+        assert_eq!(gcd(10, 0), 10);
+        assert_eq!(gcd(10, 1), 1);
+    }
 
-#[test]
-#[should_panic]
-fn test_panic_at_inifinity_ratio() {
-    Ratio::new(1, 0);
-}
+    #[test]
+    fn test_lcm() {
+        assert_eq!(lcm(10, 4), 20);
+        assert_eq!(lcm(42, 11), 462);
+        assert_eq!(lcm(10, 0), 0);
+        assert_eq!(lcm(10, 1), 10);
+    }
 
-#[test]
-fn test_ratio_from_integer() {
-    let a = Ratio::from_integer(3);
-    let b = Ratio::new(3, 1);
-    assert_eq!(a, b);
-}
+    #[test]
+    #[should_panic]
+    fn test_panic_at_inifinity_ratio() {
+        Ratio::new(1, 0);
+    }
 
-#[test]
-fn test_ratio_is_irreducible() {
-    let a = Ratio::new(3, 5);
-    let b = Ratio::new(12, 20);
-    assert_eq!(a, b);
-}
+    #[test]
+    fn test_ratio_from_integer() {
+        let a = Ratio::from_integer(3);
+        let b = Ratio::new(3, 1);
+        assert_eq!(a, b);
+    }
 
-#[test]
-fn test_negation_is_regularized() {
-    let a = Ratio::new(3, -5);
-    assert_eq!(a.numerator, -3);
-    let b = Ratio::new(0, -3);
-    assert_eq!(b.denominator, 1);
-}
+    #[test]
+    fn test_ratio_is_irreducible() {
+        let a = Ratio::new(3, 5);
+        let b = Ratio::new(12, 20);
+        assert_eq!(a, b);
+    }
 
-#[test]
-fn test_ratio_cmp() {
-    let a = Ratio::new(3, 5);
-    let b = Ratio::new(2, 7);
-    let c = Ratio::new(3, 5);
-    assert!(a > b);
-    assert!(a >= c);
-}
+    #[test]
+    fn test_negation_is_regularized() {
+        let a = Ratio::new(3, -5);
+        assert_eq!(a.numerator, -3);
+        let b = Ratio::new(0, -3);
+        assert_eq!(b.denominator, 1);
+    }
 
-#[test]
-fn test_ratio_addition() {
-    let a = Ratio::new(3, 5);
-    let b = Ratio::new(2, 7);
-    let c = Ratio::new(31, 35);
-    assert_eq!(a + b, c);
-}
+    #[test]
+    fn test_ratio_cmp() {
+        let a = Ratio::new(3, 5);
+        let b = Ratio::new(2, 7);
+        let c = Ratio::new(3, 5);
+        assert!(a > b);
+        assert!(a >= c);
+    }
 
-#[test]
-fn test_ratio_negation() {
-    let a = Ratio::new(3, 5);
-    let b = Ratio::new(-3, 5);
-    let c = Ratio::new(3, -5);
-    assert_eq!(-a, b);
-    assert_eq!(-a, c);
-}
+    #[test]
+    fn test_ratio_addition() {
+        let a = Ratio::new(3, 5);
+        let b = Ratio::new(2, 7);
+        let c = Ratio::new(31, 35);
+        assert_eq!(a + b, c);
+    }
 
-#[test]
-fn test_ratio_subtraction() {
-    let a = Ratio::new(3, 5);
-    let b = Ratio::new(2, 7);
-    let c = Ratio::new(11, 35);
-    assert_eq!(a - b, c);
-}
+    #[test]
+    fn test_ratio_negation() {
+        let a = Ratio::new(3, 5);
+        let b = Ratio::new(-3, 5);
+        let c = Ratio::new(3, -5);
+        assert_eq!(-a, b);
+        assert_eq!(-a, c);
+    }
 
-#[test]
-fn test_ratio_multiplication() {
-    let a = Ratio::new(3, 5);
-    let b = Ratio::new(2, 7);
-    let c = Ratio::new(6, 35);
-    assert_eq!(a * b, c);
-}
+    #[test]
+    fn test_ratio_subtraction() {
+        let a = Ratio::new(3, 5);
+        let b = Ratio::new(2, 7);
+        let c = Ratio::new(11, 35);
+        assert_eq!(a - b, c);
+    }
 
-#[test]
-fn test_ratio_inversion() {
-    let a = Ratio::new(3, 5);
-    let b = Ratio::new(5, 3);
-    assert_eq!(a.inverse(), b);
-}
+    #[test]
+    fn test_ratio_multiplication() {
+        let a = Ratio::new(3, 5);
+        let b = Ratio::new(2, 7);
+        let c = Ratio::new(6, 35);
+        assert_eq!(a * b, c);
+    }
 
-#[test]
-fn test_ratio_division() {
-    let a = Ratio::new(3, 5);
-    let b = Ratio::new(2, 7);
-    let c = Ratio::new(21, 10);
-    assert_eq!(a / b, c);
+    #[test]
+    fn test_ratio_inversion() {
+        let a = Ratio::new(3, 5);
+        let b = Ratio::new(5, 3);
+        assert_eq!(a.inverse(), b);
+    }
+
+    #[test]
+    fn test_ratio_division() {
+        let a = Ratio::new(3, 5);
+        let b = Ratio::new(2, 7);
+        let c = Ratio::new(21, 10);
+        assert_eq!(a / b, c);
+    }
 }

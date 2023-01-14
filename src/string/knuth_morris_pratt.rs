@@ -59,45 +59,49 @@ impl<'a, T: PartialEq> KnuthMorrisPratt<'a, T> {
         indices
     }
 }
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn test_failure_function() {
-    let text = "ABCABDA";
-    let fail = KnuthMorrisPratt::get_failure_function(text.as_bytes());
-    assert_eq!(fail, vec![0, 0, 0, 0, 1, 2, 0, 1]);
-}
+    #[test]
+    fn test_failure_function() {
+        let text = "ABCABDA";
+        let fail = KnuthMorrisPratt::get_failure_function(text.as_bytes());
+        assert_eq!(fail, vec![0, 0, 0, 0, 1, 2, 0, 1]);
+    }
 
-#[test]
-fn test_failure_function_with_single_element() {
-    let text = "A";
-    let fail = KnuthMorrisPratt::get_failure_function(text.as_bytes());
-    assert_eq!(fail, vec![0, 0]);
-}
+    #[test]
+    fn test_failure_function_with_single_element() {
+        let text = "A";
+        let fail = KnuthMorrisPratt::get_failure_function(text.as_bytes());
+        assert_eq!(fail, vec![0, 0]);
+    }
 
-#[test]
-fn test_failure_function_with_no_element() {
-    let text = "";
-    let fail = KnuthMorrisPratt::get_failure_function(text.as_bytes());
-    assert_eq!(fail, vec![0]);
-}
+    #[test]
+    fn test_failure_function_with_no_element() {
+        let text = "";
+        let fail = KnuthMorrisPratt::get_failure_function(text.as_bytes());
+        assert_eq!(fail, vec![0]);
+    }
 
-#[test]
-fn test_find_all() {
-    let text = KnuthMorrisPratt::new("AABAACAADAABAABA".as_bytes());
-    let matched = text.find_all("AABA".as_bytes());
-    assert_eq!(matched, vec![0, 9, 12]);
-}
+    #[test]
+    fn test_find_all() {
+        let text = KnuthMorrisPratt::new("AABAACAADAABAABA".as_bytes());
+        let matched = text.find_all("AABA".as_bytes());
+        assert_eq!(matched, vec![0, 9, 12]);
+    }
 
-#[test]
-fn test_find_all_no_match() {
-    let text = KnuthMorrisPratt::new("AAAA".as_bytes());
-    let matched = text.find_all("ZZ".as_bytes());
-    assert_eq!(matched, vec![]);
-}
+    #[test]
+    fn test_find_all_no_match() {
+        let text = KnuthMorrisPratt::new("AAAA".as_bytes());
+        let matched = text.find_all("ZZ".as_bytes());
+        assert_eq!(matched, vec![]);
+    }
 
-#[test]
-fn test_find_all_no_match_as_pattern_len_exceeds_text() {
-    let text = KnuthMorrisPratt::new("AA".as_bytes());
-    let matched = text.find_all("AAA".as_bytes());
-    assert_eq!(matched, vec![]);
+    #[test]
+    fn test_find_all_no_match_as_pattern_len_exceeds_text() {
+        let text = KnuthMorrisPratt::new("AA".as_bytes());
+        let matched = text.find_all("AAA".as_bytes());
+        assert_eq!(matched, vec![]);
+    }
 }

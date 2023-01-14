@@ -51,29 +51,34 @@ impl Eratosthenes {
     }
 }
 
-#[test]
-fn test_prime() {
-    let e = Eratosthenes::new(1_000_000);
-    assert!(!e.is_prime(0));
-    assert!(!e.is_prime(1));
-    assert!(e.is_prime(2));
-    assert!(e.is_prime(278809));
-    assert!(!e.is_prime(836427));
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-#[should_panic]
-fn test_prime_out_of_bounds() {
-    let e = Eratosthenes::new(10);
-    e.is_prime(11);
-}
+    #[test]
+    fn test_prime() {
+        let e = Eratosthenes::new(1_000_000);
+        assert!(!e.is_prime(0));
+        assert!(!e.is_prime(1));
+        assert!(e.is_prime(2));
+        assert!(e.is_prime(278809));
+        assert!(!e.is_prime(836427));
+    }
 
-#[test]
-fn test_factorize() {
-    let e = Eratosthenes::new(1_000_000);
-    assert_eq!(e.factorize(0), vec![]);
-    assert_eq!(e.factorize(1), vec![]);
-    assert_eq!(e.factorize(2), vec![2]);
-    assert_eq!(e.factorize(120), vec![2, 2, 2, 3, 5]);
-    assert_eq!(e.factorize(836427), vec![3, 278809]);
+    #[test]
+    #[should_panic]
+    fn test_prime_out_of_bounds() {
+        let e = Eratosthenes::new(10);
+        e.is_prime(11);
+    }
+
+    #[test]
+    fn test_factorize() {
+        let e = Eratosthenes::new(1_000_000);
+        assert_eq!(e.factorize(0), vec![]);
+        assert_eq!(e.factorize(1), vec![]);
+        assert_eq!(e.factorize(2), vec![2]);
+        assert_eq!(e.factorize(120), vec![2, 2, 2, 3, 5]);
+        assert_eq!(e.factorize(836427), vec![3, 278809]);
+    }
 }

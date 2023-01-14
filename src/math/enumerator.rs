@@ -64,43 +64,48 @@ impl Enumerator {
     }
 }
 
-#[test]
-#[should_panic]
-fn test_out_of_bounds() {
-    let e = Enumerator::new(30, 1_000_000_007);
-    e.choose(31, 2);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn test_factorial() {
-    let e = Enumerator::new(100, 1_000_000_007);
-    assert_eq!(e.factorial(0), 1);
-    assert_eq!(e.factorial(6), 720);
-}
+    #[test]
+    #[should_panic]
+    fn test_out_of_bounds() {
+        let e = Enumerator::new(30, 1_000_000_007);
+        e.choose(31, 2);
+    }
 
-#[test]
-fn test_choose() {
-    let e = Enumerator::new(100, 1_000_000_007);
-    assert_eq!(e.choose(6, 0), 1);
-    assert_eq!(e.choose(6, 1), 6);
-    assert_eq!(e.choose(6, 2), 15);
-    assert_eq!(e.choose(6, 4), e.choose(6, 2));
-    assert_eq!(e.choose(6, 7), 0);
-}
+    #[test]
+    fn test_factorial() {
+        let e = Enumerator::new(100, 1_000_000_007);
+        assert_eq!(e.factorial(0), 1);
+        assert_eq!(e.factorial(6), 720);
+    }
 
-#[test]
-fn test_permutate() {
-    let e = Enumerator::new(100, 1_000_000_007);
-    assert_eq!(e.permutate(7, 0), 1);
-    assert_eq!(e.permutate(7, 1), 7);
-    assert_eq!(e.permutate(7, 7), 5040);
-    assert_eq!(e.permutate(7, 8), 0);
-}
+    #[test]
+    fn test_choose() {
+        let e = Enumerator::new(100, 1_000_000_007);
+        assert_eq!(e.choose(6, 0), 1);
+        assert_eq!(e.choose(6, 1), 6);
+        assert_eq!(e.choose(6, 2), 15);
+        assert_eq!(e.choose(6, 4), e.choose(6, 2));
+        assert_eq!(e.choose(6, 7), 0);
+    }
 
-#[test]
-fn test_choose_with_duplicates() {
-    let e = Enumerator::new(100, 1_000_000_007);
-    assert_eq!(e.choose_with_duplicates(3, 0), 1);
-    assert_eq!(e.choose_with_duplicates(3, 1), 3);
-    assert_eq!(e.choose_with_duplicates(3, 4), 15);
+    #[test]
+    fn test_permutate() {
+        let e = Enumerator::new(100, 1_000_000_007);
+        assert_eq!(e.permutate(7, 0), 1);
+        assert_eq!(e.permutate(7, 1), 7);
+        assert_eq!(e.permutate(7, 7), 5040);
+        assert_eq!(e.permutate(7, 8), 0);
+    }
+
+    #[test]
+    fn test_choose_with_duplicates() {
+        let e = Enumerator::new(100, 1_000_000_007);
+        assert_eq!(e.choose_with_duplicates(3, 0), 1);
+        assert_eq!(e.choose_with_duplicates(3, 1), 3);
+        assert_eq!(e.choose_with_duplicates(3, 4), 15);
+    }
 }

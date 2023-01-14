@@ -53,41 +53,46 @@ impl DisjointSet {
     }
 }
 
-#[test]
-#[should_panic]
-fn test_panics_out_of_bounds() {
-    let mut dsu = DisjointSet::new(10);
-    dsu.leader(10);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn test_leader_returns_smallest_element_number() {
-    let mut dsu = DisjointSet::new(10);
-    dsu.merge(1, 3);
-    dsu.merge(2, 3);
-    dsu.merge(4, 1);
-    assert_eq!(dsu.leader(2), 1);
-}
+    #[test]
+    #[should_panic]
+    fn test_panics_out_of_bounds() {
+        let mut dsu = DisjointSet::new(10);
+        dsu.leader(10);
+    }
 
-#[test]
-fn test_merge_returns_leader_number() {
-    let mut dsu = DisjointSet::new(10);
-    let x = dsu.merge(1, 3);
-    assert_eq!(x, dsu.leader(3));
-}
+    #[test]
+    fn test_leader_returns_smallest_element_number() {
+        let mut dsu = DisjointSet::new(10);
+        dsu.merge(1, 3);
+        dsu.merge(2, 3);
+        dsu.merge(4, 1);
+        assert_eq!(dsu.leader(2), 1);
+    }
 
-#[test]
-fn test_in_same_set_when_merged() {
-    let mut dsu = DisjointSet::new(10);
-    dsu.merge(1, 3);
-    dsu.merge(2, 3);
-    assert!(dsu.same(1, 2));
-}
+    #[test]
+    fn test_merge_returns_leader_number() {
+        let mut dsu = DisjointSet::new(10);
+        let x = dsu.merge(1, 3);
+        assert_eq!(x, dsu.leader(3));
+    }
 
-#[test]
-fn test_size_gets_bigger_upon_merge() {
-    let mut dsu = DisjointSet::new(10);
-    dsu.merge(1, 3);
-    dsu.merge(1, 5);
-    assert_eq!(dsu.size(3), 3);
+    #[test]
+    fn test_in_same_set_when_merged() {
+        let mut dsu = DisjointSet::new(10);
+        dsu.merge(1, 3);
+        dsu.merge(2, 3);
+        assert!(dsu.same(1, 2));
+    }
+
+    #[test]
+    fn test_size_gets_bigger_upon_merge() {
+        let mut dsu = DisjointSet::new(10);
+        dsu.merge(1, 3);
+        dsu.merge(1, 5);
+        assert_eq!(dsu.size(3), 3);
+    }
 }

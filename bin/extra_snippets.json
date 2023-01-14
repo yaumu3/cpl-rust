@@ -1,10 +1,6 @@
 {
-  "Print line": {
-    "prefix": "p",
-    "body": "println!(\"$1\"$2);"
-  },
   "Debug": {
-    "prefix": "d",
+    "prefix": "dbg",
     "body": "dbg!($0);"
   },
   "Iterable to char separated String": {
