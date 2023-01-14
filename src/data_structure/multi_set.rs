@@ -84,82 +84,86 @@ impl<T: Ord + Clone> MultiSet<T> {
     }
 }
 
-#[test]
-fn test_multi_set_is_empty_on_construction() {
-    let ms: MultiSet<usize> = MultiSet::new();
-    assert!(ms.is_empty());
-    assert!(ms.len() == 0);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn test_is_empty_after_clear() {
-    let mut ms = MultiSet::from_slice(&[1, 2, 3, 4]);
-    ms.clear();
-    assert!(ms.is_empty());
-}
+    #[test]
+    fn test_multi_set_is_empty_on_construction() {
+        let ms: MultiSet<usize> = MultiSet::new();
+        assert!(ms.is_empty());
+    }
 
-#[test]
-fn test_multi_set_can_count_contained_value() {
-    let ms = MultiSet::from_slice(&[1, 1]);
-    assert!(ms.count(&1) == 2);
-}
+    #[test]
+    fn test_is_empty_after_clear() {
+        let mut ms = MultiSet::from_slice(&[1, 2, 3, 4]);
+        ms.clear();
+        assert!(ms.is_empty());
+    }
 
-#[test]
-fn test_multi_set_len_is_total_of_elements() {
-    let array = [1, 1, 2, 3];
-    let ms = MultiSet::from_slice(&array);
-    assert!(ms.len() == array.len());
-}
+    #[test]
+    fn test_multi_set_can_count_contained_value() {
+        let ms = MultiSet::from_slice(&[1, 1]);
+        assert!(ms.count(&1) == 2);
+    }
 
-#[test]
-fn test_remove_decrements_count_if_the_element_was_present() {
-    let array = [2, 3, 5, 5, 7, 11];
-    let mut ms = MultiSet::from_slice(&array);
-    ms.remove(&5);
-    assert_eq!(ms.count(&5), 1);
-    assert_eq!(ms.len(), array.len() - 1);
-}
+    #[test]
+    fn test_multi_set_len_is_total_of_elements() {
+        let array = [1, 1, 2, 3];
+        let ms = MultiSet::from_slice(&array);
+        assert!(ms.len() == array.len());
+    }
 
-#[test]
-fn test_empty_after_last_element_removed() {
-    let array = [13];
-    let mut ms = MultiSet::from_slice(&array);
-    ms.remove(&13);
-    assert!(ms.is_empty());
-}
+    #[test]
+    fn test_remove_decrements_count_if_the_element_was_present() {
+        let array = [2, 3, 5, 5, 7, 11];
+        let mut ms = MultiSet::from_slice(&array);
+        ms.remove(&5);
+        assert_eq!(ms.count(&5), 1);
+        assert_eq!(ms.len(), array.len() - 1);
+    }
 
-#[test]
-fn test_remove_does_not_change_len_if_element_was_not_present() {
-    let array = [2, 3, 5, 5, 7, 11];
-    let mut ms = MultiSet::from_slice(&array);
-    ms.remove(&4);
-    assert_eq!(ms.len(), array.len());
-}
+    #[test]
+    fn test_empty_after_last_element_removed() {
+        let array = [13];
+        let mut ms = MultiSet::from_slice(&array);
+        ms.remove(&13);
+        assert!(ms.is_empty());
+    }
 
-#[test]
-fn test_remove_returns_if_the_element_was_present() {
-    let array = [2, 3, 5, 7, 11];
-    let mut ms = MultiSet::from_slice(&array);
-    assert!(ms.remove(&5));
-    assert!(!ms.remove(&4));
-}
+    #[test]
+    fn test_remove_does_not_change_len_if_element_was_not_present() {
+        let array = [2, 3, 5, 5, 7, 11];
+        let mut ms = MultiSet::from_slice(&array);
+        ms.remove(&4);
+        assert_eq!(ms.len(), array.len());
+    }
 
-#[test]
-fn test_pop_first_is_ord_based() {
-    let array = [4, 2, 1, 3];
-    let mut ms = MultiSet::from_slice(&array);
-    let poped = ms.pop_first();
-    assert_eq!(poped, Some(1));
-    assert!(!ms.contains(&1));
-    assert_eq!(ms.len(), 3);
-}
+    #[test]
+    fn test_remove_returns_if_the_element_was_present() {
+        let array = [2, 3, 5, 7, 11];
+        let mut ms = MultiSet::from_slice(&array);
+        assert!(ms.remove(&5));
+        assert!(!ms.remove(&4));
+    }
 
-#[test]
-fn test_pop_last_is_ord_based() {
-    let array = [0, 4, 2, 1, 3];
-    let mut ms = MultiSet::from_slice(&array);
-    let poped = ms.pop_last();
-    assert_eq!(poped, Some(4));
-    assert!(!ms.contains(&4));
-    assert_eq!(ms.len(), 4);
+    #[test]
+    fn test_pop_first_is_ord_based() {
+        let array = [4, 2, 1, 3];
+        let mut ms = MultiSet::from_slice(&array);
+        let poped = ms.pop_first();
+        assert_eq!(poped, Some(1));
+        assert!(!ms.contains(&1));
+        assert_eq!(ms.len(), 3);
+    }
+
+    #[test]
+    fn test_pop_last_is_ord_based() {
+        let array = [0, 4, 2, 1, 3];
+        let mut ms = MultiSet::from_slice(&array);
+        let poped = ms.pop_last();
+        assert_eq!(poped, Some(4));
+        assert!(!ms.contains(&4));
+        assert_eq!(ms.len(), 4);
+    }
 }

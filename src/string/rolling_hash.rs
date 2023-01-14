@@ -72,45 +72,50 @@ impl RollingHash {
     }
 }
 
-#[test]
-fn test_mul() {
-    assert_eq!(RollingHash::mul(0, 5), 0);
-    assert_eq!(RollingHash::mul(5, 0), 0);
-    assert_eq!(
-        RollingHash::mul(12_345_678_901, 10_987_654_321),
-        1_911_157_587_856_932_063
-    );
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn test_modulo() {
-    assert_eq!(RollingHash::modulo(RollingHash::MOD * 2), 0);
-    assert_eq!(
-        RollingHash::modulo(RollingHash::MOD * 2 - 1),
-        RollingHash::MOD - 1
-    );
-}
+    #[test]
+    fn test_mul() {
+        assert_eq!(RollingHash::mul(0, 5), 0);
+        assert_eq!(RollingHash::mul(5, 0), 0);
+        assert_eq!(
+            RollingHash::mul(12_345_678_901, 10_987_654_321),
+            1_911_157_587_856_932_063
+        );
+    }
 
-#[test]
-fn test_find_all_matched() {
-    let base = 3;
+    #[test]
+    fn test_modulo() {
+        assert_eq!(RollingHash::modulo(RollingHash::MOD * 2), 0);
+        assert_eq!(
+            RollingHash::modulo(RollingHash::MOD * 2 - 1),
+            RollingHash::MOD - 1
+        );
+    }
 
-    let txt = "ABABBABABABBABA";
-    let ptn = "ABA";
-    let txt_hash = RollingHash::new(txt.as_bytes(), base);
-    let ptn_hash = RollingHash::new(ptn.as_bytes(), base);
+    #[test]
+    fn test_find_all_matched() {
+        let base = 3;
 
-    assert_eq!(txt_hash.find_all(&ptn_hash), Some(vec![0, 5, 7, 12]));
-}
+        let txt = "ABABBABABABBABA";
+        let ptn = "ABA";
+        let txt_hash = RollingHash::new(txt.as_bytes(), base);
+        let ptn_hash = RollingHash::new(ptn.as_bytes(), base);
 
-#[test]
-fn test_find_all_error() {
-    let base = 3;
+        assert_eq!(txt_hash.find_all(&ptn_hash), Some(vec![0, 5, 7, 12]));
+    }
 
-    let txt = "ABA";
-    let ptn = "ABABBABABABBABA";
-    let txt_hash = RollingHash::new(txt.as_bytes(), base);
-    let ptn_hash = RollingHash::new(ptn.as_bytes(), base);
+    #[test]
+    fn test_find_all_error() {
+        let base = 3;
 
-    assert_eq!(txt_hash.find_all(&ptn_hash), None);
+        let txt = "ABA";
+        let ptn = "ABABBABABABBABA";
+        let txt_hash = RollingHash::new(txt.as_bytes(), base);
+        let ptn_hash = RollingHash::new(ptn.as_bytes(), base);
+
+        assert_eq!(txt_hash.find_all(&ptn_hash), None);
+    }
 }

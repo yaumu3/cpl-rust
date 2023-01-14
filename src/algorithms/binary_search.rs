@@ -104,83 +104,88 @@ impl<T: PartialOrd> ElementBisect<T> for [T] {
     }
 }
 
-#[test]
-fn test_binary_search() {
-    // ABC174-E `Logs`
-    // https://atcoder.jp/contests/abc174/tasks/abc174_e
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    let samples = [
-        (9, vec![4, 4, 4], 1),
-        (0, vec![1_000_000_000, 1_000_000_000], 1_000_000_000),
-        (3, vec![7, 9], 4),
-    ];
+    #[test]
+    fn test_binary_search() {
+        // ABC174-E `Logs`
+        // https://atcoder.jp/contests/abc174/tasks/abc174_e
 
-    for (k, a, out) in &samples {
-        let is_good = |v: u32| a.iter().map(|ai| (ai - 1) / v).sum::<u32>() <= *k;
-        let ans = is_good.binary_search(1_000_000_000, 0, None).unwrap();
-        assert_eq!(ans, *out);
+        let samples = [
+            (9, vec![4, 4, 4], 1),
+            (0, vec![1_000_000_000, 1_000_000_000], 1_000_000_000),
+            (3, vec![7, 9], 4),
+        ];
+
+        for (k, a, out) in &samples {
+            let is_good = |v: u32| a.iter().map(|ai| (ai - 1) / v).sum::<u32>() <= *k;
+            let ans = is_good.binary_search(1_000_000_000, 0, None).unwrap();
+            assert_eq!(ans, *out);
+        }
     }
-}
 
-#[test]
-fn test_binary_search_with_partial_ord() {
-    let f = |x| x * x >= 2.;
-    let eps = 1e-3;
-    let sqrt_2 = f.binary_search(2., 1., Some(eps)).unwrap();
-    let delta = sqrt_2 - 2.0f64.sqrt();
-    assert!(delta > 0. && delta <= eps);
-}
+    #[test]
+    fn test_binary_search_with_partial_ord() {
+        let f = |x| x * x >= 2.;
+        let eps = 1e-3;
+        let sqrt_2 = f.binary_search(2., 1., Some(eps)).unwrap();
+        let delta = sqrt_2 - 2.0f64.sqrt();
+        assert!(delta > 0. && delta <= eps);
+    }
 
-#[test]
-fn test_binary_search_returns_none_with_equal_good_and_bad() {
-    assert_eq!((|v| v > 0).binary_search(1, 1, None), None);
-}
+    #[test]
+    fn test_binary_search_returns_none_with_equal_good_and_bad() {
+        assert_eq!((|v| v > 0).binary_search(1, 1, None), None);
+    }
 
-#[test]
-fn test_binary_search_returns_none_with_nan_specified_as_good() {
-    assert_eq!(
-        (|v: f64| v - 2. > 0.).binary_search(std::f64::NAN, 0., Some(1e-5)),
-        None
-    );
-}
+    #[test]
+    fn test_binary_search_returns_none_with_nan_specified_as_good() {
+        assert_eq!(
+            (|v: f64| v - 2. > 0.).binary_search(std::f64::NAN, 0., Some(1e-5)),
+            None
+        );
+    }
 
-#[test]
-fn test_binary_search_returns_none_with_nan_specified_as_bad() {
-    assert_eq!(
-        (|v: f64| v - 2. > 0.).binary_search(0., std::f64::NAN, Some(1e-5)),
-        None
-    );
-}
+    #[test]
+    fn test_binary_search_returns_none_with_nan_specified_as_bad() {
+        assert_eq!(
+            (|v: f64| v - 2. > 0.).binary_search(0., std::f64::NAN, Some(1e-5)),
+            None
+        );
+    }
 
-#[test]
-fn test_bisect() {
-    let li = [1, 2, 2, 2, 4, 5, 7];
+    #[test]
+    fn test_bisect() {
+        let li = [1, 2, 2, 2, 4, 5, 7];
 
-    // bisect_left
-    assert_eq!(li.bisect_left(&-1), 0);
-    assert_eq!(li.bisect_left(&2), 1);
-    assert_eq!(li.bisect_left(&4), 4);
-    assert_eq!(li.bisect_left(&7), 6);
-    assert_eq!(li.bisect_left(&8), 7);
+        // bisect_left
+        assert_eq!(li.bisect_left(&-1), 0);
+        assert_eq!(li.bisect_left(&2), 1);
+        assert_eq!(li.bisect_left(&4), 4);
+        assert_eq!(li.bisect_left(&7), 6);
+        assert_eq!(li.bisect_left(&8), 7);
 
-    // bisect_right
-    assert_eq!(li.bisect_right(&-1), 0);
-    assert_eq!(li.bisect_right(&2), 4);
-    assert_eq!(li.bisect_right(&4), 5);
-    assert_eq!(li.bisect_right(&7), 7);
-    assert_eq!(li.bisect_right(&8), 7);
-}
+        // bisect_right
+        assert_eq!(li.bisect_right(&-1), 0);
+        assert_eq!(li.bisect_right(&2), 4);
+        assert_eq!(li.bisect_right(&4), 5);
+        assert_eq!(li.bisect_right(&7), 7);
+        assert_eq!(li.bisect_right(&8), 7);
+    }
 
-#[test]
-fn test_bisect_str() {
-    let li = ["aab", "aac", "aad"];
-    assert_eq!(li.bisect_left(&"aab"), 0);
-    assert_eq!(li.bisect_right(&"aab"), 1);
-}
+    #[test]
+    fn test_bisect_str() {
+        let li = ["aab", "aac", "aad"];
+        assert_eq!(li.bisect_left(&"aab"), 0);
+        assert_eq!(li.bisect_right(&"aab"), 1);
+    }
 
-#[test]
-fn test_bisect_partial_ord() {
-    let li = [1.0, 1.2, 2.0, 2.0, 4.8, 5.7, 7.9];
-    assert_eq!(li.bisect_left(&2.0), 2);
-    assert_eq!(li.bisect_right(&2.0), 4);
+    #[test]
+    fn test_bisect_partial_ord() {
+        let li = [1.0, 1.2, 2.0, 2.0, 4.8, 5.7, 7.9];
+        assert_eq!(li.bisect_left(&2.0), 2);
+        assert_eq!(li.bisect_right(&2.0), 4);
+    }
 }

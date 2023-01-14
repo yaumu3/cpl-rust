@@ -20,13 +20,6 @@ pub fn adjacent_grids(
     })
 }
 
-#[test]
-fn test_adjacent_grids_out_of_bounds() {
-    assert_eq!(None, adjacent_grids(1, 0, 1, 1, &[(0, 1), (1, 0)]).next());
-    assert_eq!(None, adjacent_grids(0, 1, 1, 1, &[(0, 1), (1, 0)]).next());
-    assert_eq!(None, adjacent_grids(1, 1, 1, 1, &[(0, 1), (1, 0)]).next());
-}
-
 #[snippet(include = "adjacent_grids")]
 pub fn adjacent_grids_4(
     i: usize,
@@ -35,36 +28,6 @@ pub fn adjacent_grids_4(
     width: usize,
 ) -> impl Iterator<Item = (usize, usize)> {
     adjacent_grids(i, j, height, width, &[(0, 1), (1, 0), (0, !0), (!0, 0)])
-}
-
-#[test]
-fn test_adjacent_grids_4_corners() {
-    for (result, expected) in [
-        (
-            adjacent_grids_4(0, 0, 3, 4).collect::<Vec<(_, _)>>(),
-            vec![(0, 1), (1, 0)],
-        ),
-        (
-            adjacent_grids_4(0, 3, 3, 4).collect::<Vec<(_, _)>>(),
-            vec![(1, 3), (0, 2)],
-        ),
-        (
-            adjacent_grids_4(2, 3, 3, 4).collect::<Vec<(_, _)>>(),
-            vec![(2, 2), (1, 3)],
-        ),
-        (
-            adjacent_grids_4(2, 0, 3, 4).collect::<Vec<(_, _)>>(),
-            vec![(2, 1), (1, 0)],
-        ),
-    ]
-    .iter_mut()
-    {
-        result.sort_unstable();
-        expected.sort_unstable();
-        assert_eq!(result, expected);
-    }
-
-    assert_eq!(None, adjacent_grids_4(3, 5, 3, 4).next());
 }
 
 #[snippet(include = "adjacent_grids")]
@@ -92,30 +55,72 @@ pub fn adjacent_grids_8(
     )
 }
 
-#[test]
-fn test_adjacent_grids_8_corners() {
-    for (result, expected) in [
-        (
-            adjacent_grids_8(0, 0, 3, 4).collect::<Vec<(_, _)>>(),
-            vec![(0, 1), (1, 1), (1, 0)],
-        ),
-        (
-            adjacent_grids_8(0, 3, 3, 4).collect::<Vec<(_, _)>>(),
-            vec![(1, 3), (1, 2), (0, 2)],
-        ),
-        (
-            adjacent_grids_8(2, 3, 3, 4).collect::<Vec<(_, _)>>(),
-            vec![(2, 2), (1, 2), (1, 3)],
-        ),
-        (
-            adjacent_grids_8(2, 0, 3, 4).collect::<Vec<(_, _)>>(),
-            vec![(2, 1), (1, 0), (1, 1)],
-        ),
-    ]
-    .iter_mut()
-    {
-        result.sort_unstable();
-        expected.sort_unstable();
-        assert_eq!(result, expected);
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_adjacent_grids_out_of_bounds() {
+        assert_eq!(None, adjacent_grids(1, 0, 1, 1, &[(0, 1), (1, 0)]).next());
+        assert_eq!(None, adjacent_grids(0, 1, 1, 1, &[(0, 1), (1, 0)]).next());
+        assert_eq!(None, adjacent_grids(1, 1, 1, 1, &[(0, 1), (1, 0)]).next());
+    }
+
+    #[test]
+    fn test_adjacent_grids_4_corners() {
+        for (result, expected) in [
+            (
+                adjacent_grids_4(0, 0, 3, 4).collect::<Vec<(_, _)>>(),
+                vec![(0, 1), (1, 0)],
+            ),
+            (
+                adjacent_grids_4(0, 3, 3, 4).collect::<Vec<(_, _)>>(),
+                vec![(1, 3), (0, 2)],
+            ),
+            (
+                adjacent_grids_4(2, 3, 3, 4).collect::<Vec<(_, _)>>(),
+                vec![(2, 2), (1, 3)],
+            ),
+            (
+                adjacent_grids_4(2, 0, 3, 4).collect::<Vec<(_, _)>>(),
+                vec![(2, 1), (1, 0)],
+            ),
+        ]
+        .iter_mut()
+        {
+            result.sort_unstable();
+            expected.sort_unstable();
+            assert_eq!(result, expected);
+        }
+
+        assert_eq!(None, adjacent_grids_4(3, 5, 3, 4).next());
+    }
+
+    #[test]
+    fn test_adjacent_grids_8_corners() {
+        for (result, expected) in [
+            (
+                adjacent_grids_8(0, 0, 3, 4).collect::<Vec<(_, _)>>(),
+                vec![(0, 1), (1, 1), (1, 0)],
+            ),
+            (
+                adjacent_grids_8(0, 3, 3, 4).collect::<Vec<(_, _)>>(),
+                vec![(1, 3), (1, 2), (0, 2)],
+            ),
+            (
+                adjacent_grids_8(2, 3, 3, 4).collect::<Vec<(_, _)>>(),
+                vec![(2, 2), (1, 2), (1, 3)],
+            ),
+            (
+                adjacent_grids_8(2, 0, 3, 4).collect::<Vec<(_, _)>>(),
+                vec![(2, 1), (1, 0), (1, 1)],
+            ),
+        ]
+        .iter_mut()
+        {
+            result.sort_unstable();
+            expected.sort_unstable();
+            assert_eq!(result, expected);
+        }
     }
 }

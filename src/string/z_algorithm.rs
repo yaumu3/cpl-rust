@@ -34,24 +34,29 @@ pub fn get_z_array<T: PartialEq>(s: &[T]) -> Vec<usize> {
     z
 }
 
-#[test]
-fn test_z_algorithm() {
-    let pattern = ['a', 'a', 'x', 'y', 'a', 'a', 'x', 'a', 'a', 'b'];
-    assert_eq!(get_z_array(&pattern), vec![0, 1, 0, 0, 3, 1, 0, 2, 1, 0]);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn test_pattern_search() {
-    let target = "ggccgggccctgtgaccacag";
-    let pattern = "ggc";
-    let n = pattern.len();
-    let s = [pattern.as_bytes(), &[0], target.as_bytes()].concat();
-    let pos = get_z_array(&s)
-        .into_iter()
-        .enumerate()
-        .skip(n + 1)
-        .filter(|&(_, cnt)| cnt == n)
-        .map(|(i, _)| i - n - 1)
-        .collect::<Vec<_>>();
-    assert_eq!(pos, vec![0, 5]);
+    #[test]
+    fn test_z_algorithm() {
+        let pattern = ['a', 'a', 'x', 'y', 'a', 'a', 'x', 'a', 'a', 'b'];
+        assert_eq!(get_z_array(&pattern), vec![0, 1, 0, 0, 3, 1, 0, 2, 1, 0]);
+    }
+
+    #[test]
+    fn test_pattern_search() {
+        let target = "ggccgggccctgtgaccacag";
+        let pattern = "ggc";
+        let n = pattern.len();
+        let s = [pattern.as_bytes(), &[0], target.as_bytes()].concat();
+        let pos = get_z_array(&s)
+            .into_iter()
+            .enumerate()
+            .skip(n + 1)
+            .filter(|&(_, cnt)| cnt == n)
+            .map(|(i, _)| i - n - 1)
+            .collect::<Vec<_>>();
+        assert_eq!(pos, vec![0, 5]);
+    }
 }
