@@ -37,6 +37,9 @@ impl<'a, T> Iterator for Iter<'a, T> {
             if let Some((k, &v)) = self.iter.next() {
                 self.front = Some(k);
                 self.front_count = v;
+            } else if self.back_count > 0 {
+                self.back_count -= 1;
+                return self.back;
             }
         }
         if self.front_count > 0 {
@@ -55,6 +58,9 @@ impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
             if let Some((k, &v)) = self.iter.next_back() {
                 self.back = Some(k);
                 self.back_count = v;
+            } else if self.front_count > 0 {
+                self.front_count -= 1;
+                return self.front;
             }
         }
         if self.back_count > 0 {
@@ -237,10 +243,10 @@ mod tests {
         assert_eq!(Some(&0), iter.next());
         assert_eq!(Some(&3), iter.next_back());
         assert_eq!(Some(&3), iter.next_back());
+        assert_eq!(Some(&2), iter.next_back());
         assert_eq!(Some(&0), iter.next());
         assert_eq!(Some(&1), iter.next());
         assert_eq!(Some(&1), iter.next());
-        assert_eq!(Some(&2), iter.next());
         assert_eq!(Some(&2), iter.next());
         assert_eq!(None, iter.next());
         assert_eq!(None, iter.next_back());
