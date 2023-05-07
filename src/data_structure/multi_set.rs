@@ -4,7 +4,7 @@ use cargo_snippet::snippet;
 #[derive(Debug)]
 pub struct MultiSet<T> {
     len: usize,
-    multi_set: std::collections::BTreeMap<T, usize>,
+    freq: std::collections::BTreeMap<T, usize>,
 }
 
 #[snippet("multi_set")]
@@ -20,7 +20,7 @@ pub struct Iter<'a, T> {
 impl<'a, T> Iter<'a, T> {
     fn new(ms: &'a MultiSet<T>) -> Self {
         Self {
-            iter: ms.multi_set.iter(),
+            iter: ms.freq.iter(),
             front: None,
             front_count: 0,
             back: None,
@@ -37,6 +37,9 @@ impl<'a, T> Iterator for Iter<'a, T> {
             if let Some((k, &v)) = self.iter.next() {
                 self.front = Some(k);
                 self.front_count = v;
+            } else if self.back_count > 0 {
+                self.back_count -= 1;
+                return self.back;
             }
         }
         if self.front_count > 0 {
@@ -55,6 +58,9 @@ impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
             if let Some((k, &v)) = self.iter.next_back() {
                 self.back = Some(k);
                 self.back_count = v;
+            } else if self.front_count > 0 {
+                self.front_count -= 1;
+                return self.front;
             }
         }
         if self.back_count > 0 {
@@ -71,7 +77,7 @@ impl<T: Ord> Default for MultiSet<T> {
     fn default() -> Self {
         Self {
             len: 0,
-            multi_set: std::collections::BTreeMap::new(),
+            freq: std::collections::BTreeMap::new(),
         }
     }
 }
@@ -90,40 +96,40 @@ impl<T: Ord + Clone> MultiSet<T> {
     }
     pub fn clear(&mut self) {
         self.len = 0;
-        self.multi_set.clear()
+        self.freq.clear()
     }
     pub fn is_empty(&self) -> bool {
-        self.multi_set.is_empty()
+        self.freq.is_empty()
     }
     pub fn len(&self) -> usize {
         self.len
     }
     pub fn count(&self, e: &T) -> usize {
-        *self.multi_set.get(e).unwrap_or(&0)
+        *self.freq.get(e).unwrap_or(&0)
     }
     pub fn insert(&mut self, e: T) {
         self.len += 1;
-        *self.multi_set.entry(e).or_insert(0) += 1;
+        *self.freq.entry(e).or_insert(0) += 1;
     }
     pub fn contains(&self, e: &T) -> bool {
-        self.multi_set.contains_key(e)
+        self.freq.contains_key(e)
     }
     pub fn remove(&mut self, e: &T) -> bool {
         if !self.contains(e) {
             return false;
         }
         self.len -= 1;
-        *self.multi_set.get_mut(e).unwrap() -= 1;
+        *self.freq.get_mut(e).unwrap() -= 1;
         if self.count(e) == 0 {
-            self.multi_set.remove(e);
+            self.freq.remove(e);
         }
         true
     }
     pub fn first(&self) -> Option<&T> {
-        self.multi_set.keys().next()
+        self.freq.keys().next()
     }
     pub fn last(&self) -> Option<&T> {
-        self.multi_set.keys().last()
+        self.freq.keys().last()
     }
     pub fn pop_first(&mut self) -> Option<T> {
         if self.is_empty() {
@@ -237,10 +243,10 @@ mod tests {
         assert_eq!(Some(&0), iter.next());
         assert_eq!(Some(&3), iter.next_back());
         assert_eq!(Some(&3), iter.next_back());
+        assert_eq!(Some(&2), iter.next_back());
         assert_eq!(Some(&0), iter.next());
         assert_eq!(Some(&1), iter.next());
         assert_eq!(Some(&1), iter.next());
-        assert_eq!(Some(&2), iter.next());
         assert_eq!(Some(&2), iter.next());
         assert_eq!(None, iter.next());
         assert_eq!(None, iter.next_back());
