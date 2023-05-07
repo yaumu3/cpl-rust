@@ -8,6 +8,65 @@ pub struct MultiSet<T> {
 }
 
 #[snippet("multi_set")]
+pub struct Iter<'a, T> {
+    iter: std::collections::btree_map::Iter<'a, T, usize>,
+    front: Option<&'a T>,
+    front_count: usize,
+    back: Option<&'a T>,
+    back_count: usize,
+}
+
+#[snippet("multi_set")]
+impl<'a, T> Iter<'a, T> {
+    fn new(ms: &'a MultiSet<T>) -> Self {
+        Self {
+            iter: ms.multi_set.iter(),
+            front: None,
+            front_count: 0,
+            back: None,
+            back_count: 0,
+        }
+    }
+}
+
+#[snippet("multi_set")]
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.front_count == 0 {
+            if let Some((k, &v)) = self.iter.next() {
+                self.front = Some(k);
+                self.front_count = v;
+            }
+        }
+        if self.front_count > 0 {
+            self.front_count -= 1;
+            self.front
+        } else {
+            None
+        }
+    }
+}
+
+#[snippet("multi_set")]
+impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        if self.back_count == 0 {
+            if let Some((k, &v)) = self.iter.next_back() {
+                self.back = Some(k);
+                self.back_count = v;
+            }
+        }
+        if self.back_count > 0 {
+            self.back_count -= 1;
+            self.back
+        } else {
+            None
+        }
+    }
+}
+
+#[snippet("multi_set")]
 impl<T: Ord> Default for MultiSet<T> {
     fn default() -> Self {
         Self {
@@ -81,6 +140,9 @@ impl<T: Ord + Clone> MultiSet<T> {
         let max_key = self.last().unwrap().clone();
         self.remove(&max_key);
         Some(max_key)
+    }
+    pub fn iter(&self) -> Iter<T> {
+        Iter::new(self)
     }
 }
 
@@ -165,5 +227,22 @@ mod tests {
         assert_eq!(poped, Some(4));
         assert!(!ms.contains(&4));
         assert_eq!(ms.len(), 4);
+    }
+
+    #[test]
+    fn test_iter() {
+        let array = [3, 2, 1, 1, 3, 0, 0, 2];
+        let ms = MultiSet::from_slice(&array);
+        let mut iter = ms.iter();
+        assert_eq!(Some(&0), iter.next());
+        assert_eq!(Some(&3), iter.next_back());
+        assert_eq!(Some(&3), iter.next_back());
+        assert_eq!(Some(&0), iter.next());
+        assert_eq!(Some(&1), iter.next());
+        assert_eq!(Some(&1), iter.next());
+        assert_eq!(Some(&2), iter.next());
+        assert_eq!(Some(&2), iter.next());
+        assert_eq!(None, iter.next());
+        assert_eq!(None, iter.next_back());
     }
 }
